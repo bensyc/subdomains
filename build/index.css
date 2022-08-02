@@ -1,0 +1,177 @@
+@font-face {
+    font-family: 'EarthOrbiter';
+    src: url('EarthOrbiter.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+		margin: 0;
+		padding: 0;
+}
+
+@font-face {
+    font-family: 'SFMono';
+    src: url('SFMono.woff2') format('woff2');
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "EarthOrbiter";
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: url('background.png');
+  background-size: cover;
+  border-radius: 4px !important;
+}
+
+table, th, td {
+  border: 1px black solid;
+  padding: 4px 20px;
+  border-radius: 3px;
+}
+
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.hidden {
+  display: none
+}
+
+.avatar {
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 200px;
+  height: 200px;
+}
+
+.icon {
+  vertical-align: middle;
+  width: 16px;
+  height: 16px;
+}
+
+.container {
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 40px 40px;
+  border-radius: 6px;
+  background: radial-gradient(circle, rgba(204,237,254,0.7) 0%, rgba(195,171,255,0.7) 100%);
+}
+
+.table {
+  background: radial-gradient(circle, rgba(204,237,254,0.7) 0%, rgba(195,171,255,0.7) 100%);
+}
+
+.small {
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  height: 20%;
+  padding: 20px 20px;
+}
+
+.button {
+  appearance: none;
+  border: none;
+  font-family: "EarthOrbiter";
+  background-image: linear-gradient(to right, #3898FF, #7A70FF);
+  line-height: 1;
+  font-size: 16px;
+  font-weight: 400;
+  height: 35px;
+  padding: 1px 24px;
+  border-radius: 6px;
+  align-items: left;
+  color: white;
+  transition: all ease 100ms;
+}
+
+button:not(:disabled):hover {
+  transform: scale(1.2);
+}
+
+button:disabled,
+button[disabled]{
+  background: rgba(22, 25, 31, 0.24);
+}
+
+button[inactive="true"] {
+  background: rgba(22, 25, 31, 0.24);
+}
+
+button[loading="true"] {
+  background-image: linear-gradient(270deg, #FF6257, #FF5CA0);
+  position: relative;
+}
+
+  button[loading="true"]::after {
+    animation-name: pulse;
+    animation-duration: 500ms;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    background-color: #FF6257;
+    border-radius: inherit;
+    bottom: 0;
+    content: ' ';
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+button[done="true"] {
+   opacity: 0;
+   transform: scale(0.85);
+}
+
+h1 {
+  font-size: 40px;
+  font-family: "EarthOrbiter";
+  text-align: center;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale
+}
+h2 { font-size: 36px; weight: 800 }
+h3 { font-size: 24px; weight: 800 }
+h4 { font-size: 18px; weight: 800 }
+
+a:link {
+  color: blue;
+  background-color: transparent;
+  text-decoration: none;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+a:hover {
+  color: white;
+  background-color: black;
+  text-decoration: none;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+
+@keyframes pulse {
+  0% { opacity: 0 }
+  100% { opacity: '100%' }
+}
+
+iframe {
+  background: #ccc;
+  border: 1px solid #ccc;
+  height: 10rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  filter: invert(1);
+}
