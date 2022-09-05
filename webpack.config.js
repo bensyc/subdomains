@@ -16,7 +16,7 @@ module.exports = {
   output: {
     filename: 'main.js',
     path: path.join(__dirname,'/build'),
-    publicPath: 'https://ipfs.io/ipfs/QmZuNL7JXhqQPBBVKNBqBD186CUjAFxsNAyEsNyDw31iK8?filename=',
+    publicPath: 'https://ipfs.io/ipfs/QmPiGZM3h8yLnNwcFyQm9eNjPPYEeYQcKMcMnDHLfiQX3M?filename=',
   },
   externals: {
     'Config': JSON.stringify(process.env.NODE_ENV === 'production' ? {

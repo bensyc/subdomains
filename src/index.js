@@ -13,7 +13,8 @@ const ensTableElm = document.getElementById('ensTable');
 const ensAddress = "https://api.thegraph.com/subgraphs/name/ensdomains/ens";
 const tablePrefix = ``;
 
-const provider = ethers.getDefaultProvider('mainnet');
+const alchemyKeyMainnet = `1neXhbbd8evjTkGGVh3cLByBqFjVPf8F`;
+const provider = new ethers.providers.AlchemyProvider("mainnet", alchemyKeyMainnet);
 
 let widthScreen = screen.width;
 let tr = '';
@@ -47,8 +48,12 @@ async function getENSMetadata(ensName) {
                 {
                   id
                 }
+              events
+                {
+                  transactionID
+                }
             }
-          registrations(where:{ labelName: "${ensName.slice(0,-4)}" })
+          registrations(where:{ labelName: "${ensName.split(".").at(-2)}" })
             {
               registrationDate
               expiryDate
@@ -75,6 +80,7 @@ async function getENSMetadata(ensName) {
     const {data} = wrapper;
     const {domains, registrations} = data;
 
+    let blockNumber = 0;
     let resolvedAddress = '';
     let textKeys = [];
     let createdAt = 0;
@@ -92,42 +98,51 @@ async function getENSMetadata(ensName) {
         for (let i = 0, x = domains.length; i < x; i++) {
             let domain = domains[i];
             let registration = registrations[i];
-            if (domain.name === ensName && registration.labelName === ensName.slice(0,-4)) {
+            if (domain.name === ensName && registration.labelName === ensName.split(".").at(-2)) {
                 textKeys = domain.resolver.texts;
-                resolvedAddress = domain.resolvedAddress.id;
+                resolvedAddress = domain.resolvedAddress ? domain.resolvedAddress.id : '';
                 createdAt = domain.createdAt;
                 ttl = domain.ttl;
                 owner = domain.owner.id;
-                transactionID = registration.events[0].transactionID;
-                registrationDate = Number(registration.registrationDate);
-                expiryDate = Number(registration.expiryDate);
+                transactionID = domain.events[0].transactionID;
+                blockNumber = (await provider.getTransaction(transactionID)).blockNumber;
+                registrationDate = (await provider.getBlock(blockNumber)).timestamp;
+                expiryDate = 32503680000; // January 1, 3000 00:00:00 UTC
                 break;
             }
         }
         nextProfile = `<tr><td><div class="tooltip">🆔 member<span class="tooltiptext">bensyc subdomain</span></div></td><td><span class="${tr}"><a href="https://alpha.ens.domains/profile/${ensName}" target="_blank">${ensName} ↗</a></span></td></tr>`;
 
-        nextProfile += `<tr><td><div class="tooltip">🔒 owner<span class="tooltiptext">minter of subdomain</span></div></td><td><span class="${tr}"><a href="https://etherscan.io/address/${owner}" target="_blank">${owner.slice(0,8)}...${owner.slice(-6)} ↗</a></span></td></tr>`
+        nextProfile += `<tr><td><div class="tooltip">🔒 owner<span class="tooltiptext">minter of subdomain</span></div></td><td><span class="${tr}"><a href="https://etherscan.io/address/${owner}" target="_blank">${owner.slice(0,6)}...${owner.slice(-4)} ↗</a></span></td></tr>`
 
         if (resolvedAddress) {
-          nextProfile += `<tr><td><div class="tooltip">➡️ address<span class="tooltiptext">resolved address of subdomain</span></div></td><td><span class="${tr}"><a href="https://etherscan.io/address/${resolvedAddress}" target="_blank">${resolvedAddress.slice(0,8)}...${resolvedAddress.slice(-6)} ↗</a></span></td></tr>`
+          nextProfile += `<tr><td><div class="tooltip">➡️ address<span class="tooltiptext">resolved address of subdomain</span></div></td><td><span class="${tr}"><a href="https://etherscan.io/address/${resolvedAddress}" target="_blank">${resolvedAddress.slice(0,6)}...${resolvedAddress.slice(-4)} ↗</a></span></td></tr>`
         } else {
-          nextProfile += `<tr><td><div class="tooltip">➡️ address<span class="tooltiptext">resolved address of subdomain</span></div></td><td>⚠️ no address found ⚠️</td></tr>`
+          if (widthScreen <= 400) {
+            nextProfile += `<tr><td><div class="tooltip">➡️ address<span class="tooltiptext">resolved address of subdomain</span></div></td><td><span class="${tr}">⚠️ no address ⚠️</span></td></tr>`
+          } else {
+            nextProfile += `<tr><td><div class="tooltip">➡️ address<span class="tooltiptext">resolved address of subdomain</span></div></td><td><span class="${tr}">⚠️ no address found ⚠️</span></td></tr>`
+          }
         }
 
-        nextProfile += `<tr><td><div class="tooltip">🖨️ minted<span class="tooltiptext">date & time of mint</span></div></td><td><span class="${tr}">${new Date(registrationDate*1000).toLocaleString("en-US")} UTC</span></td></tr>`
+        nextProfile += `<tr><td><div class="tooltip">🖨️ minted<span class="tooltiptext">date & time of mint</span></div></td><td><span class="${tr}">${new Date(registrationDate*1000).toLocaleString("en-US",{hour12: false, year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})} UTC</span></td></tr>`
 
-        nextProfile += `<tr><td><div class="tooltip">⌛ expires<span class="tooltiptext">date & time of expiry</span></div></td><td><span class="${tr}">${new Date(expiryDate*1000).toLocaleString("en-US")} UTC</span></td></tr>`
+        nextProfile += `<tr><td><div class="tooltip">🖨️ minted<span class="tooltiptext">date & time of mint</span></div></td><td><span class="${tr}">${new Date(expiryDate*1000).toLocaleString("en-US",{hour12: false, year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})} UTC</span></td></tr>`
 
-        nextProfile += `<tr><td><div class="tooltip">☑️ txn id<span class="tooltiptext">mint transaction hash</span></div></td><td><span class="${tr}"><a href="https://etherscan.io/tx/${transactionID}" target="_blank">${transactionID.slice(0,8)}...${transactionID.slice(-6)} ↗</a></span></td></tr>`
+        nextProfile += `<tr><td><div class="tooltip">☑️ txn id<span class="tooltiptext">mint transaction hash</span></div></td><td><span class="${tr}"><a href="https://etherscan.io/tx/${transactionID}" target="_blank">${transactionID.slice(0,6)}...${transactionID.slice(-4)} ↗</a></span></td></tr>`
 
         nextProfile += `<tr><td><div class="tooltip">🌊 opensea<span class="tooltiptext">link to nft on opensea</span></div></td><td><span class="${tr}"><a href="https://opensea.io/assets/ethereum/${contract}/${tokenID}" target="_blank">Link ↗</a></span></td></tr>`
 
-        nextProfile += `<tr><td><div class="tooltip">$<img class="icon" src="https://ipfs.io/ipfs/QmVkfRfbiw9ciZqWzxxigKAZjK9UeAPQUtCBsBKQSTqgxV?filename=ape.png"> balance<span class="tooltiptext">your balance of $<img class="tiny" src="https://ipfs.io/ipfs/QmVkfRfbiw9ciZqWzxxigKAZjK9UeAPQUtCBsBKQSTqgxV?filename=ape.png"> token</span></div></td><td><span class="${tr}">${balance}</span></td></tr>`
+        nextProfile += `<tr><td><div class="tooltip">$<img class="icon" src="https://ipfs.io/ipfs/QmREy1wn2i2NBAmDWRFNBGXWEF5Skc6gP7J8UBHh3ZdBXg?filename=ape.png"> balance<span class="tooltiptext">your balance of $<img class="tiny" src="https://ipfs.io/ipfs/QmREy1wn2i2NBAmDWRFNBGXWEF5Skc6gP7J8UBHh3ZdBXg?filename=ape.png"> token</span></div></td><td><span class="${tr}">${balance}</span></td></tr>`
 
         nextProfile += `<tr><td><div class="tooltip">$🧪 balance<span class="tooltiptext">your balance of $🧪 token</span></div></td><td><span class="${tr}">${balance}</span></td></tr>`
       } else {
         nextProfile = `<tr><td><div class="tooltip">🆔 member<span class="tooltiptext">bensyc subdomain</span></div></td><td><span class="${tr}"><a href="https://alpha.ens.domains/profile/${ensName}" target="_blank">${ensName} ↗</a></span></td></tr>`;
-        nextProfile += `<tr><td><div class="tooltip"><span style="color: indianred;">❗ warning:<span class="tooltiptext">resolver status</span></div></td><td>⚠️ no resolver set ⚠️</span></td></tr>`
+        if (widthScreen <= 400) {
+          nextProfile += `<tr><td><div class="tooltip" style="color: indianred;">❗ warning:<span class="tooltiptext">resolver status</span></div></td><td><span class="${tr}">⚠️ no resolver ⚠️</span></td></tr>`
+        } else {
+          nextProfile += `<tr><td><div class="tooltip" style="color: indianred;">❗ warning:<span class="tooltiptext">resolver status</span></div></td><td><span class="${tr}">⚠️ no resolver set ⚠️</span></td></tr>`
+        }
       }
     } else {
       nextProfile = `<tr><td><div class="tooltip">🆔 member<span class="tooltiptext">bensyc subdomain</span></div></td><td><span class="${tr}" style="color: red;">❌ ${homepage.slice(0,-22)}.bensyc.eth</span></td></tr>`;
