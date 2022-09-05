@@ -127,7 +127,7 @@ async function getENSMetadata(ensName) {
 
         nextProfile += `<tr><td><div class="tooltip">🖨️ minted<span class="tooltiptext">date & time of mint</span></div></td><td><span class="${tr}">${new Date(registrationDate*1000).toLocaleString("en-US",{hour12: false, year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})} UTC</span></td></tr>`
 
-        nextProfile += `<tr><td><div class="tooltip">🖨️ minted<span class="tooltiptext">date & time of mint</span></div></td><td><span class="${tr}">${new Date(expiryDate*1000).toLocaleString("en-US",{hour12: false, year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})} UTC</span></td></tr>`
+        nextProfile += `<tr><td><div class="tooltip">⌛ expires<span class="tooltiptext">date & time of expiry</span></div></td><td><span class="${tr}">${new Date(expiryDate*1000).toLocaleString("en-US",{hour12: false, year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})} UTC</span></td></tr>`
 
         nextProfile += `<tr><td><div class="tooltip">☑️ txn id<span class="tooltiptext">mint transaction hash</span></div></td><td><span class="${tr}"><a href="https://etherscan.io/tx/${transactionID}" target="_blank">${transactionID.slice(0,6)}...${transactionID.slice(-4)} ↗</a></span></td></tr>`
 
